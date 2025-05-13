@@ -60,7 +60,7 @@ jobs:
     needs: verilator-ci-setup
     strategy:
       matrix:
-        tests: [
+        test: [
           sequential_bare_tests/dct,
           sequential_bare_tests/fft2,
           sequential_bare_tests/rijndael,
