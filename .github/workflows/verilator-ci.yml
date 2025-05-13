@@ -38,7 +38,7 @@ jobs:
         run: |
           cd /workspaces
           git submodule update --init --recursive
-          source sw/pulp-runtime/configs/pulpissimo.sh
+          source sw/pulp-runtime/configs/pulpissimo_cv32.sh
       - name: Upload prebuilt Verilator 
         uses: actions/upload-artifact@v4
         with:
@@ -126,6 +126,6 @@ jobs:
           VERILATOR_PATH: /workspaces/build/verilator
         run: |
           cd /workspaces
-          source sw/pulp-runtime/configs/pulpissimo.sh
+          source sw/pulp-runtime/configs/pulpissimo_cv32.sh
           cd sw/regression_tests/${{ matrix.test }}
           make clean all run platform=verilator bootmode=fast_debug
