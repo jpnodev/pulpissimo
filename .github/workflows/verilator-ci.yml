@@ -59,6 +59,7 @@ jobs:
       image: fconti/pulp-verilator:latest
       volumes: 
         - ${{ github.workspace }}:/workspaces
+    needs: verilator-ci-setup
     strategy:
       matrix:
         tests: [
@@ -129,4 +130,3 @@ jobs:
           cd /workspaces
           cd sw/regression_tests/${{ matrix.test }}
           make clean all run platform=verilator bootmode=fast_debug
-          
