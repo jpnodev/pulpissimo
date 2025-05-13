@@ -128,5 +128,6 @@ jobs:
           VERILATOR_PATH: /workspaces/build/verilator
         run: |
           cd /workspaces
+          source sw/pulp-runtime/configs/pulpissimo.sh
           cd sw/regression_tests/${{ matrix.test }}
           make clean all run platform=verilator bootmode=fast_debug
