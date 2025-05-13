@@ -6,8 +6,8 @@
 name: verilator-ci
 on: [push, pull_request, workflow_dispatch]
 jobs:
-  verilator-ci:
-    name: Public Verilator CI
+  verilator-ci-setup:
+    name: Public Verilator CI (setup)
     runs-on: ubuntu-22.04
     container:
       image: fconti/pulp-verilator:latest
@@ -41,3 +41,92 @@ jobs:
           source sw/pulp-runtime/configs/pulpissimo.sh
           cd sw/regression_tests/hello
           make clean all run platform=verilator bootmode=fast_debug
+      - name: Upload prebuilt Verilator 
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-verilator
+          path: /workspaces/build/verilator
+      - name: Upload checked out software
+        uses: actions/upload-artifact@v4
+        with:
+          name: built-sw
+          path: /workspaces/sw
+
+  verilator-ci-tests:
+    name: Public Verilator CI (tests)
+    runs-on: ubuntu-22.04
+    container:
+      image: fconti/pulp-verilator:latest
+      volumes: 
+        - ${{ github.workspace }}:/workspaces
+    strategy:
+      matrix:
+        tests: [
+          sequential_bare_tests/dct,
+          sequential_bare_tests/fft2,
+          sequential_bare_tests/rijndael,
+          sequential_bare_tests/jacobi-2d-imper,
+          sequential_bare_tests/bitDescriptor,
+          sequential_bare_tests/stencil_vect,
+          sequential_bare_tests/keccak,
+          sequential_bare_tests/fir,
+          sequential_bare_tests/stencil,
+          sequential_bare_tests/ipm,
+          sequential_bare_tests/towerofhanoi,
+          sequential_bare_tests/crc32,
+          sequential_bare_tests/conv2d,
+          sequential_bare_tests/seidel,
+          sequential_bare_tests/fibonacci,
+          sequential_bare_tests/gauss-2d,
+          sequential_bare_tests/aes_cbc,
+          sequential_bare_tests/bubblesort,
+          sequential_bare_tests/fdtd-1d,
+          sequential_bare_tests/jacobi-1d-imper,
+          sequential_bare_tests/fft,
+          riscv_tests/testBitManipulation,
+          riscv_tests/testVecCmp,
+          riscv_tests/testAddSubNorm,
+          riscv_tests/testMisaligned,
+          riscv_tests/testALU,
+          riscv_tests/testMAC3,
+          riscv_tests/testVecArith,
+          riscv_tests/testDotMul,
+          riscv_tests/testVecLogic,
+          riscv_tests/testCnt,
+          riscv_tests/testVecRelat,
+          riscv_tests/testShufflePack,
+          riscv_tests/testMUL,
+          riscv_tests/testHWLP,
+          riscv_tests/testMacNorm,
+          riscv_tests/testVariadic,
+          riscv_tests/testMAC,
+          riscv_tests/testLoadStore,
+          riscv_tests/testALUExt,
+          riscv_tests/testBuiltins
+        ]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Check container environment
+        run: |
+          echo "Running on:"
+          cat /etc/os-release
+      - name: Download prebuilt Verilator 
+        uses: actions/download-artifact@v4
+        with:
+          name: built-verilator
+          path: /workspaces/build/verilator
+      - name: Download checked out software
+        uses: actions/download-artifact@v4
+        with:
+          name: built-sw
+          path: /workspaces/sw
+      - name: SW tests
+        shell: bash
+        env:
+          VERILATOR_PATH: /workspaces/build/verilator
+        run: |
+          cd /workspaces
+          cd sw/regression_tests/${{ matrix.test }}
+          make clean all run platform=verilator bootmode=fast_debug
+          
