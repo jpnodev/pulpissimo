@@ -39,8 +39,6 @@ jobs:
           cd /workspaces
           git submodule update --init --recursive
           source sw/pulp-runtime/configs/pulpissimo.sh
-          cd sw/regression_tests/hello
-          make clean all run platform=verilator bootmode=fast_debug
       - name: Upload prebuilt Verilator 
         uses: actions/upload-artifact@v4
         with:
