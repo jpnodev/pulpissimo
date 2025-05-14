@@ -20,11 +20,11 @@ jobs:
         run: |
           echo "Running on:"
           cat /etc/os-release
-      - name: Where am I?
+      - name: Check Verilator version
         shell: bash
         run: |
           cd /workspaces
-          echo `ls -l`
+          verilator --version
       - name: Verilate
         shell: bash
         run: |
