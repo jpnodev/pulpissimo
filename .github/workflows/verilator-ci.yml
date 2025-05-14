@@ -32,24 +32,11 @@ jobs:
           mkdir -p utils/bin && touch utils/bin/bender
           make checkout
           make verilate
-      - name: SW sanity check
-        shell: bash
-        env:
-          VERILATOR_PATH: /workspaces/build/verilator
-        run: |
-          cd /workspaces
-          git submodule update --init --recursive
-          source sw/pulp-runtime/configs/pulpissimo_cv32.sh
       - name: Upload prebuilt Verilator 
         uses: actions/upload-artifact@v4
         with:
           name: built-verilator
           path: /workspaces/build/verilator
-      - name: Upload checked out software
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-sw
-          path: /workspaces/sw
 
   verilator-ci-tests:
     name: Public Verilator CI (tests)
@@ -116,11 +103,10 @@ jobs:
         with:
           name: built-verilator
           path: /workspaces/build/verilator
-      - name: Download checked out software
-        uses: actions/download-artifact@v4
-        with:
-          name: built-sw
-          path: /workspaces/sw
+      - name: Checkout software
+        shell: bash
+        run: |
+          git submodule update --init --recursive
       - name: SW tests
         shell: bash
         env:
