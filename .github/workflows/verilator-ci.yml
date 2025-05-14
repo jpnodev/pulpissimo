@@ -13,7 +13,6 @@ jobs:
       image: fconti/pulp-verilator:latest
       volumes: 
         - ${{ github.workspace }}:/workspaces
-    needs: verilator-ci-setup
     strategy:
       matrix:
         test: [
