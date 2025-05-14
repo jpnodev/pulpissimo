@@ -29,6 +29,7 @@ jobs:
         shell: bash
         run: |
           cd /workspaces
+          mkdir -p utils/bin && touch utils/bin/bender
           make checkout
           make verilate
       - name: SW sanity check
