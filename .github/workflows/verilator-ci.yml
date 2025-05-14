@@ -6,40 +6,8 @@
 name: verilator-ci
 on: [push, pull_request, workflow_dispatch]
 jobs:
-  verilator-ci-setup:
-    name: Public Verilator CI (setup)
-    runs-on: ubuntu-22.04
-    container:
-      image: fconti/pulp-verilator:latest
-      volumes: 
-        - ${{ github.workspace }}:/workspaces
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-      - name: Check container environment
-        run: |
-          echo "Running on:"
-          cat /etc/os-release
-      - name: Check Verilator version
-        shell: bash
-        run: |
-          cd /workspaces
-          verilator --version
-      - name: Verilate
-        shell: bash
-        run: |
-          cd /workspaces
-          mkdir -p utils/bin && touch utils/bin/bender
-          make checkout
-          make verilate
-      - name: Upload prebuilt Verilator 
-        uses: actions/upload-artifact@v4
-        with:
-          name: built-verilator
-          path: /workspaces/build/verilator
-
-  verilator-ci-tests:
-    name: Public Verilator CI (tests)
+  verilator-ci:
+    name: Public Verilator CI
     runs-on: ubuntu-22.04
     container:
       image: fconti/pulp-verilator:latest
@@ -98,11 +66,18 @@ jobs:
         run: |
           echo "Running on:"
           cat /etc/os-release
-      - name: Download prebuilt Verilator 
-        uses: actions/download-artifact@v4
-        with:
-          name: built-verilator
-          path: /workspaces/build/verilator
+      - name: Check Verilator version
+        shell: bash
+        run: |
+          cd /workspaces
+          verilator --version
+      - name: Verilate
+        shell: bash
+        run: |
+          cd /workspaces
+          mkdir -p utils/bin && touch utils/bin/bender
+          make checkout
+          make verilate
       - name: Checkout software
         shell: bash
         run: |
