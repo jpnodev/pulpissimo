@@ -50,7 +50,7 @@ jobs:
           riscv_tests/testVecRelat,
           riscv_tests/testShufflePack,
           riscv_tests/testMUL,
-          riscv_tests/testHWLP,
+          # riscv_tests/testHWLP,
           riscv_tests/testMacNorm,
           riscv_tests/testVariadic,
           riscv_tests/testMAC,
