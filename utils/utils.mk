@@ -45,7 +45,7 @@ $(PULPISSIMO_UTILS)/bender:
 ifeq (,$(wildcard bin/bender))
 	mkdir -p $(PULPISSIMO_UTILS)
 	cd $(PULPISSIMO_UTILS) && curl --proto '=https' --tlsv1.2 -sSf https://pulp-platform.github.io/bender/init \
-		| bash -s -- 0.28.0
+		| bash -s -- 0.29.0
 	touch $(PULPISSIMO_UTILS)/bender
 endif
 

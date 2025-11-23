@@ -73,10 +73,11 @@ relink:
 ## @param SIM_TOP='tb_pulp' The toplevel module to optimize for simulation. Default: tb_pulp
 ## @param USE_VIPS=0 Use the VIPs in the simulation. Default: 0
 .PHONY: build
-build: $(QUESTA_BUILD_DIR)/compile.tcl $(QUESTA_BUILD_DIR)/compile_vip.tcl relink
 ifeq ($(USE_VIPS), 0)
+build: $(QUESTA_BUILD_DIR)/compile.tcl relink
 	cd $(QUESTA_BUILD_DIR) && $(VSIM_BIN) $(VSIM_ARGS) -c -do 'quit -code [source compile.tcl]'
 else
+build: $(QUESTA_BUILD_DIR)/compile.tcl $(QUESTA_BUILD_DIR)/compile_vip.tcl relink
 	cd $(QUESTA_BUILD_DIR) && $(VSIM_BIN) $(VSIM_ARGS) -c -do 'quit -code [source compile_vip.tcl]'
 	echo "Building with VIPS"
 endif
