@@ -147,11 +147,73 @@ DSPs             4           90           ✅ OK              -10 ✅
 
 ---
 
-## Phase 3: Peripheral Reduction (Pending)
-- Not yet started
+## Phase 3: Peripheral Reduction (In Progress)
 
-## Phase 4: Padframe Adaptation (Pending)
-- Not yet started
+### 1. Clone Dependencies
+- **Command**: `./utils/bin/bender clone pulp_io` and `./utils/bin/bender clone pulp_soc`
+- **Result**: Dependencies cloned to `working_dir/pulp_io` and `working_dir/pulp_soc`
+- **Rationale**: Need to modify `pulp_io` package which is a dependency
+
+### 2. Disable Unused Peripherals  
+- **File**: `working_dir/pulp_io/src/udma_cfg_pkg.sv`
+- **Backup**: ✅ `udma_cfg_pkg_old.sv` created
+- **Changes** (lines 22-31):
+  - `N_QSPIM`: 1 → **0** (DISABLED)
+  - `N_UART`: **1** (KEEP - needed for console)
+  - `N_I2C`: 1 → **0** (DISABLED)
+  - `N_SDIO`: 1 → **0** (DISABLED)
+  - `N_CPI`: 1 → **0** (DISABLED)
+  - `N_HYPER`: 1 → **0** (DISABLED)
+  - `N_FILTER`: **1** (KEEP - required to avoid uDMA arbiter bug with single channel)
+- **Rationale**: 
+  - Unused peripherals consume logic resources
+  - QSPI, I2C, SDIO, CPI, and HyperBus not needed for basic operation
+  - UART essential for console communication
+  - FILTER must stay enabled to prevent uDMA arbiter issues
+
+### 3. Phase 3 Verification Build
+- **Status**: 🔄 Starting...
+
+---
+
+## Phase 4: Padframe Adaptation (In Progress)
+
+### 1. Update Padframe Muxing
+- **File**: `hw/padframe/padframe_adapter.sv`
+- **Backup**: ✅ `padframe_adapter_old.sv` created
+- **Changes**:
+  - Updated `N_CONNECTED_*` constants to `0` for QSPI, I2C, SDIO, CPI, HYPER
+  - Wrapped `ASSIGN_*` macros in `generate` blocks checking `if (udma_cfg_pkg::N_* > 0)`
+- **Rationale**: 
+  - Resolves synthesis error `[Synth 8-6058]` (mismatch between configured and connected peripherals)
+  - Ensures assignments are only generated for active peripherals
+
+### 2. Phase 4 Verification Build
+- **Status**: ❌ **FAILED** (Expected - still over-utilized)
+- **Build Command**: `make all -j16`
+- **Synthesis**: ✅ PASSED
+- **Implementation**: ❌ FAILED at placement stage
+
+**Resource Utilization - Phase 4 Results:**
+```
+Resource         Required    Available    Over-Utilization    vs Phase 2
+-------------------------------------------------------------------------
+LUTs             25,732      20,800       +24% (1.24x)       -27% ✅ (-9,428)
+RAMB36           80          50           +60% (1.6x)        No change
+RAMB18/36 Total  160         100          +60% (1.6x)        No change  
+```
+
+**Phase 4 Impact Analysis:**
+- **LUT Reduction**: 9,428 LUTs saved (27% reduction from 35,160 → 25,732)
+  - Disabling QSPI, I2C, SDIO, CPI, HYPER was highly effective
+- **Total Progress**: 43,523 → 25,732 (41% total reduction)
+- **Remaining Gap**:
+  - **LUTs**: Need to reduce by **4,932** more (19% further reduction)
+  - **BRAM**: Need to reduce by **60** (38% reduction)
+
+**Next Steps:** Proceed to Phase 5 (Memory Reduction) to reduce L2 TCDM size.
+
+---
 
 ## Phase 5: Memory Reduction (Pending)
 - Not yet started
