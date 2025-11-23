@@ -20,7 +20,7 @@
 //-----------------------------------------------------------------------------
 
 `define SOC_MEM_MAP_TCDM_START_ADDR          32'h1C01_0000
-`define SOC_MEM_MAP_TCDM_END_ADDR            32'h1C09_0000
+`define SOC_MEM_MAP_TCDM_END_ADDR            32'h1C03_0000 // 128KB (Reduced from 512KB, maximized for Basys3)
 
 `define SOC_MEM_MAP_PRIVATE_BANK0_START_ADDR 32'h1C00_0000
 `define SOC_MEM_MAP_PRIVATE_BANK0_END_ADDR   32'h1C00_8000

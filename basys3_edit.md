@@ -215,8 +215,45 @@ RAMB18/36 Total  160         100          +60% (1.6x)        No change
 
 ---
 
-## Phase 5: Memory Reduction (Pending)
-- Not yet started
+## Phase 5: Memory Reduction ✅ COMPLETE
+
+### 1. Reduce L2 TCDM Size
+- **Goal**: Reduce BRAM usage to fit Basys3 (100 BRAMs available) while maximizing capacity.
+- **Files Modified**:
+  - `working_dir/pulp_soc/rtl/pulp_soc/pulp_soc.sv`: Changed `L2_BANK_SIZE` to `8192` (32KB/bank).
+  - `hw/includes/soc_mem_map.svh`: Updated `SOC_MEM_MAP_TCDM_END_ADDR` to `32'h1C03_0000` (128KB range).
+- **Rationale**: 
+  - 128KB TCDM + 64KB Private = 192KB total.
+  - Basys3 has ~225KB total BRAM (50 RAMB36).
+  - Utilization: ~86% (43/50 RAMB36s). Maximizes usage without overflow.
+
+### 2. Phase 5 Verification Build
+- **Status**: ❌ **FAILED** (LUTs over-utilized, but BRAM OK!)
+- **Build Command**: `make all -j16`
+- **Synthesis**: ✅ PASSED
+- **Implementation**: ❌ FAILED at placement (LUTs)
+
+**Resource Utilization - Phase 5 Results:**
+```
+Resource         Required    Available    Over-Utilization    vs Phase 4
+-------------------------------------------------------------------------
+LUTs             24,909      20,800       +20% (1.20x)        -3% ✅ (-823)
+RAMB36           48          50           96% (OK)            -40% ✅ (Fits!)
+RAMB18/36 Total  96          100          96% (OK)            -40% ✅ (Fits!)
+```
+
+**Phase 5 Impact Analysis:**
+- **BRAM**: **SOLVED**. Reduced from 80 -> 48 RAMB36s.
+  - 192KB total memory (128KB TCDM + 64KB Private) fits perfectly.
+  - Maximized usage (96%) as requested.
+- **LUTs**: Slight reduction (25,732 -> 24,909).
+  - Still need to save ~4,100 LUTs.
+
+**Next Steps:** Phase 6 - Final LUT Reduction (Disable HWPE, XPULP).
+
+---
+
+## Phase 6: Final LUT Reduction (Pending)
 
 ---
 
