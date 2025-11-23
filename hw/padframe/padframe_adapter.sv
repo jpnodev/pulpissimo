@@ -128,12 +128,12 @@ module padframe_adapter #(
   // complex). We thus only check, if the number of peripherals configured in
   // the PULP_IO package matches the number we expect and issue an elaboration
   // error if it doesn't. Maybe this part can be improved somehow in the future.
-  localparam N_CONNECTED_QSPIM = 1;
+  localparam N_CONNECTED_QSPIM = 0; // DISABLED
   localparam N_CONNECTED_UART  = 1;
-  localparam N_CONNECTED_I2C   = 1;
-  localparam N_CONNECTED_SDIO  = 1;
-  localparam N_CONNECTED_CPI   = 1;
-  localparam N_CONNECTED_HYPER = 1;
+  localparam N_CONNECTED_I2C   = 0; // DISABLED
+  localparam N_CONNECTED_SDIO  = 0; // DISABLED
+  localparam N_CONNECTED_CPI   = 0; // DISABLED
+  localparam N_CONNECTED_HYPER = 0; // DISABLED
   localparam N_CONNECTED_I2S = 0;
 
   if (udma_cfg_pkg::N_QSPIM != N_CONNECTED_QSPIM)
@@ -232,22 +232,39 @@ module padframe_adapter #(
   assign pad_to_uart_o[0].rx_i = s_port_signals_pad2soc.all_pads.uart0.rx_i;
 
   //I2C
-  `ASSIGN_I2C0_PAD2SOC(pad_to_i2c_o[0], s_port_signals_pad2soc.all_pads.i2c0)
+  generate
+    if (udma_cfg_pkg::N_I2C > 0) begin : gen_i2c_assigns
+      `ASSIGN_I2C0_PAD2SOC(pad_to_i2c_o[0], s_port_signals_pad2soc.all_pads.i2c0)
+    end
+  endgenerate
 
   //SDIO
-  `ASSIGN_SDIO0_PAD2SOC(pad_to_sdio_o[0], s_port_signals_pad2soc.all_pads.sdio0)
-  `ASSIGN_SDIO0_SOC2PAD(s_port_signals_soc2pad.all_pads.sdio0, sdio_to_pad_i[0])
+  generate
+    if (udma_cfg_pkg::N_SDIO > 0) begin : gen_sdio_assigns
+      `ASSIGN_SDIO0_PAD2SOC(pad_to_sdio_o[0], s_port_signals_pad2soc.all_pads.sdio0)
+      `ASSIGN_SDIO0_SOC2PAD(s_port_signals_soc2pad.all_pads.sdio0, sdio_to_pad_i[0])
+    end
+  endgenerate
 
   //I2S
   `ASSIGN_I2S0_PAD2SOC(pad_to_i2s_o[0], s_port_signals_pad2soc.all_pads.i2s0)
   `ASSIGN_I2S0_SOC2PAD(s_port_signals_soc2pad.all_pads.i2s0, i2s_to_pad_i[0])
 
   //QSPI Master
-  `ASSIGN_QSPIM0_PAD2SOC(pad_to_qspi_o[0], s_port_signals_pad2soc.all_pads.qspim0)
-  `ASSIGN_QSPIM0_SOC2PAD(s_port_signals_soc2pad.all_pads.qspim0, qspi_to_pad_i[0])
+  generate
+    if (udma_cfg_pkg::N_QSPIM > 0) begin : gen_qspi_assigns
+      `ASSIGN_QSPIM0_PAD2SOC(pad_to_qspi_o[0], s_port_signals_pad2soc.all_pads.qspim0)
+      `ASSIGN_QSPIM0_SOC2PAD(s_port_signals_soc2pad.all_pads.qspim0, qspi_to_pad_i[0])
+    end
+  endgenerate
 
   //CPI
-  `ASSIGN_CPI0_PAD2SOC(pad_to_cpi_o[0], s_port_signals_pad2soc.all_pads.cpi0)
+  //CPI
+  generate
+    if (udma_cfg_pkg::N_CPI > 0) begin : gen_cpi_assigns
+      `ASSIGN_CPI0_PAD2SOC(pad_to_cpi_o[0], s_port_signals_pad2soc.all_pads.cpi0)
+    end
+  endgenerate
 
   /////////////////////////////////////////
   // Instantiate Auto-generated Padframe //
