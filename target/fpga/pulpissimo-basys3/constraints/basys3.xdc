@@ -6,14 +6,14 @@ set_property -dict {PACKAGE_PIN W5 IOSTANDARD LVCMOS33} [get_ports sys_clk]
 create_clock -period 10.000 -name ref_clk [get_ports sys_clk]
 
 ## Reset (Center Button - Active High)
-# Mapped to U18. In RTL, ensure this signals active-high logic or invert it.
+# Mapped to U18.
 set_property -dict {PACKAGE_PIN U18 IOSTANDARD LVCMOS33} [get_ports pad_reset_n]
 set_false_path -from [get_ports pad_reset_n]
 # Allow reset to be routed on non-clock pin
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets pad_reset_n_IBUF]
 
 ## Buttons
-# btnc_i moved to Switch 15 (R2) to avoid conflict with Reset on U18
+# CRITICAL FIX: btnc_i moved to Switch 15 (R2) to avoid conflict with Reset on U18
 set_property -dict {PACKAGE_PIN R2  IOSTANDARD LVCMOS33} [get_ports btnc_i]
 set_property -dict {PACKAGE_PIN U17 IOSTANDARD LVCMOS33} [get_ports btnd_i]
 set_property -dict {PACKAGE_PIN W19 IOSTANDARD LVCMOS33} [get_ports btnl_i]
@@ -72,9 +72,7 @@ set_property -dict {PACKAGE_PIN M19 IOSTANDARD LVCMOS33} [get_ports pad_spim_sck
 
 ## SD Card (Mapped to JXADC Header)
 # REQUIRED to satisfy IO placement even if you don't use SD.
-# Corresponds to Basys 3 JXADC Pmod Header.
 set_property -dict {PACKAGE_PIN J3 IOSTANDARD LVCMOS33} [get_ports pad_sdio_clk]
-# set_property -dict {PACKAGE_PIN L3 IOSTANDARD LVCMOS33} [get_ports { sd_cd }]; 
 set_property -dict {PACKAGE_PIN M2 IOSTANDARD LVCMOS33} [get_ports pad_sdio_cmd]
 set_property -dict {PACKAGE_PIN N2 IOSTANDARD LVCMOS33} [get_ports pad_sdio_data0]
 set_property -dict {PACKAGE_PIN K3 IOSTANDARD LVCMOS33} [get_ports pad_sdio_data1]
@@ -115,15 +113,3 @@ set_clock_groups -asynchronous \
 # Required workaround for cascade BUFG in Slow Clock Manager
 set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets i_pulpissimo/i_clock_gen/i_slow_clk_div/i_clk_mux/clk_o]
 set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets i_pulpissimo/i_clock_gen/i_slow_clk_mngr/inst/clk_out1]
-
-# 1. Fix BUFG Cascade Error
-# Allow the slow clock divider to drive the clock manager via general routing
-set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets i_pulpissimo/i_clock_gen/i_slow_clk_div/i_clk_mux/clk_o]
-
-# 2. Fix JTAG Clock Placement
-# Allow JTAG TCK (from Pmod) to drive the internal clock network via general routing
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets i_pulpissimo/i_padframe/i_pulpissimo_pads/i_all_pads/i_all_pads_pads/i_pad_jtag_tck/O]
-
-# 3. Fix Reset Routing
-# Allow the Reset button to drive the reset network via general routing
-set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets pad_reset_n_IBUF]

@@ -61,7 +61,7 @@ update_compile_order -fileset sources_1
 # Add constraints
 if { $BOARD == "basys3" } {
     puts "Use basys3 constraints."
-    add_files -fileset constrs_1 -norecurse $CONSTRS/pulpissimo-basys3.xdc
+    add_files -fileset constrs_1 -norecurse $CONSTRS/basys3.xdc
 }
 
 
@@ -81,9 +81,15 @@ set_property needs_refresh false [get_runs synth_1]
 # Remove unused IOBUF cells in padframe (they are not optimized away since the
 # pad driver also drives the input creating a datapath from pad_xy_o to pad_xy_i)
 # Disconnect the nets and connect them to ground to avoid issues in optimization
+
+# Configure bootsel = 2'b00 for UART boot mode (mode 0)
+# This enables loading programs via UART in SREC format (no JTAG/SPI flash needed)
+# bootsel[0] = 0 (const0), bootsel[1] = 0 (const0)
 remove_cell i_pulpissimo/i_padframe/i_pulpissimo_pads/i_all_pads/i_all_pads_pads/i_pad_bootsel*
-disconnect_net -objects [get_nets i_pulpissimo/i_soc_domain/bootsel_i*]
-connect_net -objects [get_nets i_pulpissimo/i_soc_domain/bootsel_i*] -net i_pulpissimo/<const0>
+disconnect_net -objects [get_nets i_pulpissimo/i_soc_domain/bootsel_i[0]]
+disconnect_net -objects [get_nets i_pulpissimo/i_soc_domain/bootsel_i[1]]
+connect_net -objects [get_nets i_pulpissimo/i_soc_domain/bootsel_i[0]] -net i_pulpissimo/<const0>
+connect_net -objects [get_nets i_pulpissimo/i_soc_domain/bootsel_i[1]] -net i_pulpissimo/<const0>
 
 remove_cell i_pulpissimo/i_padframe/i_pulpissimo_pads/i_all_pads/i_all_pads_pads/i_pad_hyper*
 disconnect_net -objects [get_nets i_pulpissimo/i_soc_domain/pad_to_hyper_i*]
